@@ -1,0 +1,44 @@
+
+.MagicSquareMatrix,
+.MagicSquareMatrix td {
+  border-left: 1px solid #cccccc;
+  border-top: 1px solid #cccccc;
+  border-right: 1px solid #999999;
+  border-bottom: 1px solid #999999;
+}
+
+.MagicSquareControls {
+  margin: 6px 0;
+}
+
+.MagicSquareStatus {
+  font-weight: bold;
+  text-transform: uppercase;
+}
+
+.MistakeStatus {
+  color: #ff0000;
+}
+
+.ValidStatus {
+  color: #2a8a00;
+}
+
+.IncompleteStatus {
+  color: #666666;
+}
+
+.MagicSquareMatrix td {
+  width: 30px;
+  height: 30px;
+}
+
+.MagicSquareMatrix .NumberEntry {
+  border: 0;
+  text-align: center;
+  width: 30px;
+  height: 30px;
+  font: 18px sans-serif;
+  font-weight: bold;
+  vertical-align: middle;
+}

@@ -1,0 +1,81 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.1//EN"
+  "http://www.w3.org/TR/xhtml11/DTD/xhtml11.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/>
+<title>Carré magique</title>
+<link href="../style.css" rel="stylesheet" type="text/css"/>
+<link href="magic-square.css" rel="stylesheet" type="text/css"/>
+</head>
+<body>
+<div id="header">
+<h1>Carré magique</h1>
+</div>
+<div id="breadcrumb">
+<a href="../index.html" title="Jeux et stratégies">Jeux et stratégies</a> &rsaquo; <strong>Carré magique</strong>
+</div>
+<div id="content">
+<fieldset>
+<legend>Paramètres</legend>
+<ul>
+<li>
+<label for="ms-size">Ordre du carré :</label>
+<select id="ms-size" name="ms-size" class="select">
+<option value="3">3&times;3</option>
+<option value="4">4&times;4</option>
+<option value="5">5&times;5</option>
+<option value="7">7&times;7</option>
+<option value="8">8&times;8</option>
+<option value="9">9&times;9</option>
+<option value="11">11&times;11</option>
+<option value="12">12&times;12</option>
+<option value="13">13&times;13</option>
+<option value="15">15&times;15</option>
+<option value="16">16&times;16</option>
+<option value="-1">Autre…</option>
+</select>
+</li>
+</ul>
+</fieldset>
+<div id="ms-grid"></div>
+</div>
+<div id="footer">
+<p>2011 <a href="mailto:francislr@gmail.com" title="Envoyer un courriel">Francis Lavoie-Renaud</a></p>
+</div>
+<script src="magic-square.js" type="text/javascript">
+</script>
+<script>
+//<![CDATA[
+ms_grid = new ms.MagicSquareMatrix();
+ms_grid.initTableElement();
+ms_grid.appendTo("ms-grid");
+ms_grid.clearGrid();
+ms_size_select = document.getElementById("ms-size");
+function ms_size_grid(size) {
+  ms_grid.createGrid(size);
+  ms_grid.initTableElement();
+}
+function ms_size_select_change() {
+  if (ms_size_select.selectedIndex < 0) {
+    return ;
+  }
+  var size = ms_size_select.options[ms_size_select.selectedIndex].value;
+  size = parseInt(size);
+  if (size == -1) {
+    size = prompt("Spécifiez l'ordre du carré magique :", "3");
+    if (size == null) {
+      return ;
+    }
+    size = parseInt(size);
+    if (isNaN(size)) {
+      return ;
+    }
+  }
+  ms_size_grid(size);
+}
+ms_size_select.onchange = ms_size_select_change;
+ms_size_select_change();
+//]]>
+</script>
+</body>
+</html>

@@ -1,0 +1,218 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.1//EN"
+  "http://www.w3.org/TR/xhtml11/DTD/xhtml11.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/>
+<title>NIM</title>
+<link href="../style.css" rel="stylesheet" type="text/css"/>
+<link href="nim.css" rel="stylesheet" type="text/css"/>
+</head>
+<body>
+<div id="header">
+<h1>Jeu de NIM</h1>
+</div>
+<div id="breadcrumb">
+<a href="../index.html" title="Jeux et stratégies">Jeux et stratégies</a> &rsaquo; <strong>Jeu de NIM</strong>
+</div>
+<div id="content">
+<fieldset>
+<legend id="nim-settings">Settings</legend>
+<ul>
+<li>
+<label for="nim-rows" id="nim-rows-label">Number of heaps:</label>
+<select id="nim-rows" class="select">
+<option value="3">3 (easy)</option>
+<option value="4">4</option>
+<option value="5">5 (medium)</option>
+<option value="6">6</option>
+<option value="7">7 (hard)</option>
+</select>
+</li>
+<li>
+<label for="nim-first-player" id="nim-first-player-label">First to start:</label>
+<select id="nim-first-player" class="select">
+<option value="human">Human start</option>
+<option value="computer">Computer start</option>
+</select>
+</li>
+<li>
+<label for="nim-theme" id="nim-theme-label">Theme:</label>
+<select id="nim-theme" class="select">
+<option value="ThemeMatch" selected="selected">Match</option>
+<option value="ThemeBall">Tenis Ball</option>
+<option value="ThemeCoin">Coin</option>
+</select>
+</li>
+<li>
+<label for="nim-language" id="nim-language-label">Language:</label>
+<select id="nim-language" class="select">
+<option value="en">English</option>
+<option value="fr" selected="selected">Français</option>
+</select>
+</li>
+<li class="controls">
+<button id="nim-new-game" class="button">New game</button>
+</li>
+</fieldset>
+<div id="game"></div>
+</div>
+<div id="footer">
+<p>2011 <a href="mailto:francislr@gmail.com" title="Envoyer un courriel">Francis Lavoie-Renaud</a></p>
+</div>
+<script src="nim.js" type="text/javascript" charset="UTF-8">
+</script>
+<script>
+//<![CDATA[
+Game = null;
+NIM_HEAPS_VERSION = {
+  3: [ 3, 4, 5 ],
+  4: [ 1, 3, 5, 7 ],
+  5: [ 1, 2, 4, 8, 10 ],
+  6: [ 1, 2, 3, 4, 5, 6 ],
+  7: [ 1, 2, 3, 4, 5, 6, 7 ]
+};
+UI_LOCALIZATION = {
+  "en": {
+    "nim-settings": "Settings",
+    "nim-rows-label": "Number of heaps:",
+    "nim-rows": {
+      "3": "3 (easy)",
+      "5": "5 (medium)",
+      "7": "7 (hard)"
+    },
+    "nim-first-player-label": "First to play:",
+    "nim-first-player": {
+      "human": "Human start",
+      "computer": "Computer start"
+    },
+    "nim-theme-label": "Theme:",
+    "nim-theme": {
+      "ThemeMatch": "Match",
+      "ThemeBall": "Tennis ball",
+      "ThemeCoin": "Coin"
+    },
+    "nim-language-label": "Language:",
+    "nim-new-game": "New game"
+  },
+  "fr": {
+    "nim-settings": "Paramètres",
+    "nim-rows-label": "Nombre de tas :",
+    "nim-rows": {
+      "3": "3 (facile)",
+      "5": "5 (moyen)",
+      "7": "7 (difficile)"
+    },
+    "nim-first-player-label": "Premier à jouer :",
+    "nim-first-player": {
+      "human": "Humain",
+      "computer": "Ordinateur"
+    },
+    "nim-theme-label": "Thème :",
+    "nim-theme": {
+      "ThemeMatch": "Allumette",
+      "ThemeBall": "Balle de tennis",
+      "ThemeCoin": "Pièce de monnaie"
+    },
+    "nim-language-label": "Langue :",
+    "nim-new-game": "Nouvelle partie"
+  }
+};
+rows_select = document.getElementById("nim-rows");
+first_player_select = document.getElementById("nim-first-player");
+language_select = document.getElementById("nim-language");
+theme_select = document.getElementById("nim-theme");
+new_game_button = document.getElementById("nim-new-game");
+
+function apply_translation(lang) {
+  if (!UI_LOCALIZATION[lang]) {
+    return ;
+  }
+  for (key in UI_LOCALIZATION[lang]) {
+    var element = document.getElementById(key);
+    if (!element) {
+      continue ;
+    }
+    var message = UI_LOCALIZATION[lang][key];
+    var tag_name = new String(element.tagName);
+    if (tag_name.toLowerCase() == "select") {
+      for (var i = 0; i < element.options.length; i++) {
+        var option = element.options[i];
+        var value = option.value;
+        if (!message[value]) {
+          continue ;
+        }
+        option.text = message[value];
+      }
+    }
+    else {
+      element.innerHTML = message;
+    }
+  }
+}
+
+function getSelectValue(element) {
+  try {
+    return element.options[element.selectedIndex].value;
+  }
+  catch (e) {
+    return "";
+  }
+}
+
+function setSelectItem(element, value) {
+  for (var i = 0; i < element.options.length; i++) {
+    if (element.options[i].value == value) {
+      element.selectedIndex = i;
+      break ;
+    }
+  }
+}
+
+function load_game() {
+  if (Game) {
+    Game.destroy();
+    Game = null;
+  }
+  var rows = getSelectValue(rows_select),
+      first_player = getSelectValue(first_player_select),
+      theme = getSelectValue(theme_select),
+      language = getSelectValue(language_select);
+  rows = parseInt(rows);
+  var heaps = NIM_HEAPS_VERSION[rows];
+  if (!heaps) {
+    return ;
+  }
+  Game = new nim.Game(language, heaps, first_player, "game", theme);
+  apply_translation(language);
+}
+load_game();
+rows_select.onchange =
+first_player_select.onchange =
+theme_select.onchange =
+language_select.onchange =
+new_game_button.onclick = load_game;
+window.onload = function () {
+  var lang_code;
+  try {
+    if (navigator.language) {
+      lang_code = navigator.language;
+    }
+    else if (navigator.systemLanguage) {
+      lang_code = navigator.userLanguage;
+    }
+    else if (navigator.userLanguage) {
+      lang_code = navigator.userLanguage;
+    }
+    if (lang_code) {
+      lang_code = lang_code.substr(0, 2);
+      setSelectItem(language_select, lang_code);
+    }
+  }
+  catch (e) {
+  }
+  load_game();
+};
+//]]>
+</script>
+</body>
+</html>
