@@ -1,0 +1,205 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.1//EN"
+  "http://www.w3.org/TR/xhtml11/DTD/xhtml11.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/>
+<title>Mastermind</title>
+<link href="../style.css" rel="stylesheet" type="text/css"/>
+<link href="mastermind.css" rel="stylesheet" type="text/css"/>
+</head>
+<body>
+<div id="header">
+<h1>Mastermind</h1>
+</div>
+<div id="breadcrumb">
+<a href="../index.html" title="Jeux et stratégies">Jeux et stratégies</a> &rsaquo; <strong>Mastermind</strong>
+</div>
+<div id="content">
+<fieldset>
+<legend id="mm-settings">Settings</legend>
+<ul>
+<li>
+<label for="mm-color" id="mm-color-label">Number of colors:</label>
+<select id="mm-color" class="select">
+<option value="4">4</option>
+<option value="5">5</option>
+<option value="6" selected="selected">6</option>
+<option value="7">7</option>
+<option value="8">8</option>
+</select>
+</li>
+<li>
+<label for="mm-duplicate" id="mm-duplicate-label">Duplicated color:</label>
+<select id="mm-duplicate" class="select">
+<option value="1">Yes</option>
+<option value="0" selected="selected">No</option>
+</select>
+</li>
+<li>
+<label for="mm-language" id="mm-language-label">Language:</label>
+<select id="mm-language" class="select">
+<option value="en">English</option>
+<option value="fr" selected="selected">Français</option>
+</select>
+</li>
+<li class="controls">
+<button id="mm-new-game" class="button">New game</button>
+</li>
+</ul>
+</fieldset>
+<div id="game" class="Mastermind">
+</div>
+</div>
+<div id="footer">
+<p>2011 <a href="mailto:francislr@gmail.com" title="Envoyer un courriel">Francis Lavoie-Renaud</a></p>
+</div>
+<script src="mastermind.js" type="text/javascript" charset="UTF-8">
+</script>
+<script type="text/javascript">
+//<![CDATA[
+Game = null;
+Solution = null;
+DisplaySolution = false;
+UI_LOCALIZATION = {
+  "en": {
+    "mm-settings": "Settings",
+    "mm-color-label": "Number of color:",
+    "mm-duplicate-label": "Duplicated color:",
+    "mm-duplicate": {
+      "1": "Yes",
+      "0": "No"
+    },
+    "mm-language-label": "Language:",
+    "mm-new-game": "New game"
+  },
+  "fr": {
+    "mm-settings": "Paramètres",
+    "mm-color-label": "Nombre de couleur :",
+    "mm-duplicate-label": "Couleur dupliquée :",
+    "mm-duplicate": {
+      "1": "Oui",
+      "0": "Non"
+    },
+    "mm-language-label": "Langue :",
+    "mm-new-game": "Nouvelle partie"
+  }
+};
+
+color_select = document.getElementById("mm-color");
+language_select = document.getElementById("mm-language");
+duplicate_select = document.getElementById("mm-duplicate");
+new_game_button = document.getElementById("mm-new-game");
+
+function apply_translation(lang) {
+  if (!UI_LOCALIZATION[lang]) {
+    return ;
+  }
+  for (key in UI_LOCALIZATION[lang]) {
+    var element = document.getElementById(key);
+    if (!element) {
+      continue ;
+    }
+    var message = UI_LOCALIZATION[lang][key];
+    var tag_name = new String(element.tagName);
+    if (tag_name.toLowerCase() == "select") {
+      for (var i = 0; i < element.options.length; i++) {
+        var option = element.options[i];
+        var value = option.value;
+        if (!message[value]) {
+          continue ;
+        }
+        option.text = message[value];
+      }
+    }
+    else {
+      element.innerHTML = message;
+    }
+  }
+}
+
+function getSelectValue(element) {
+  try {
+    return element.options[element.selectedIndex].value;
+  }
+  catch (e) {
+    return "";
+  }
+}
+
+function setSelectItem(element, value) {
+  for (var i = 0; i < element.options.length; i++) {
+    if (element.options[i].value == value) {
+      element.selectedIndex = i;
+      break ;
+    }
+  }
+}
+
+function load_game() {
+  if (Game) {
+    Game.destroy();
+    Game = null;
+  }
+  if (Solution) {
+    Solution.destroy();
+    Solution = null;
+  }
+  var color_count = getSelectValue(color_select),
+      allow_duplicated = getSelectValue(duplicate_select);
+      language = getSelectValue(language_select);
+  color_count = parseInt(color_count);
+  allow_duplicated = allow_duplicated == "1";
+  apply_translation(language);
+  Game = new mm.Game("game", language, color_count, allow_duplicated);
+  Solution = new mm.GameRow("game", null, null);
+  if (!DisplaySolution) {
+    Solution.display("none");
+  }
+  Solution.setColorSet(Game.solution_set_);
+}
+
+function toggle_display_solution() {
+  DisplaySolution = !DisplaySolution;
+  if (!Solution) {
+    return ;
+  }
+  Solution.display((DisplaySolution) ? "block" : "none");
+}
+
+load_game();
+color_select.onchange =
+duplicate_select.onchange =
+language_select.onchange =
+new_game_button.onclick = load_game;
+window.onkeydown = function (event) {
+  if (event.keyCode == 87) { /* W key */
+    toggle_display_solution();
+  }
+};
+
+window.onload = function () {
+  var lang_code;
+  try {
+    if (navigator.language) {
+      lang_code = navigator.language;
+    }
+    else if (navigator.systemLanguage) {
+      lang_code = navigator.userLanguage;
+    }
+    else if (navigator.userLanguage) {
+      lang_code = navigator.userLanguage;
+    }
+    if (lang_code) {
+      lang_code = lang_code.substr(0, 2);
+      setSelectItem(language_select, lang_code);
+    }
+  }
+  catch (e) {
+  }
+  load_game();
+};
+
+//]]>
+</script>
+</body>
+</html>

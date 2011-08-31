@@ -1,0 +1,196 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.1//EN"
+  "http://www.w3.org/TR/xhtml11/DTD/xhtml11.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/>
+<title>Les tours de Hanoï</title>
+<link href="../style.css" rel="stylesheet" type="text/css"/>
+<link href="hanoi.css" rel="stylesheet" type="text/css"/>
+</head>
+<body>
+<div id="header">
+<h1>Les tours de Hanoï</h1>
+</div>
+<div id="breadcrumb">
+<a href="../index.html" title="Jeux et stratégies">Jeux et stratégies</a> &rsaquo; <strong>Les tours de Hanoï</strong>
+</div>
+<div id="content">
+<fieldset>
+<legend id="hanoi-settings">Settings</legend>
+<ul>
+<li>
+<label for="hanoi-disks" id="hanoi-disks-label">Number of disks:</label>
+<select id="hanoi-disks" class="select">
+<option value="1">1</option>
+<option value="2">2</option>
+<option value="3" selected="selected">3 (easy)</option>
+<option value="4">4</option>
+<option value="5">5</option>
+<option value="6">6</option>
+<option value="7">7</option>
+<option value="8">8 (hard)</option>
+</select>
+</li>
+<li>
+<label for="hanoi-initial-peg" id="hanoi-initial-peg-label">Initial tower:</label>
+<select id="hanoi-initial-peg" class="select">
+<option value="0">A</option>
+<option value="1">B</option>
+<option value="2">C</option>
+</select>
+</li>
+<li>
+<label for="hanoi-language" id="hanoi-language-label">Language:</label>
+<select id="hanoi-language" class="select">
+<option value="en">English</option>
+<option value="fr" selected="selected">Français</option>
+</select>
+</li>
+<li class="controls">
+<button id="hanoi-new-game" class="button">New game</button>
+<button id="hanoi-solve" class="button">Solve</button>
+</li>
+</ul>
+</fieldset>
+<div id="game">
+</div>
+</div>
+<div id="footer">
+<p>2011 <a href="mailto:francislr@gmail.com" title="Envoyer un courriel">Francis Lavoie-Renaud</a></p>
+</div>
+<script src="hanoi.js" type="text/javascript" charset="UTF-8">
+</script>
+<script type="text/javascript">
+//<![CDATA[
+Game = null;
+UI_LOCALIZATION = {
+  "en": {
+    "hanoi-settings": "Settings",
+    "hanoi-disks-label": "Number of disks:",
+    "hanoi-disks": {
+      "3": "3 (easy)",
+      "8": "8 (hard)"
+    },
+    "hanoi-initial-peg-label": "Initial tower:",
+    "hanoi-language-label": "Language:",
+    "hanoi-new-game": "New game",
+    "hanoi-solve": "Solve"
+  },
+  "fr": {
+    "hanoi-settings": "Paramètres",
+    "hanoi-disks-label": "Nombre de disques :",
+    "hanoi-disks": {
+      "3": "3 (facile)",
+      "8": "8 (difficile)"
+    },
+    "hanoi-initial-peg-label": "Tour initiale :",
+    "hanoi-language-label": "Langue :",
+    "hanoi-new-game": "Nouvelle partie",
+    "hanoi-solve": "Résoudre"
+  }
+};
+disks_select = document.getElementById("hanoi-disks");
+language_select = document.getElementById("hanoi-language");
+initial_peg_select = document.getElementById("hanoi-initial-peg");
+new_game_button = document.getElementById("hanoi-new-game");
+solve_button = document.getElementById("hanoi-solve");
+
+function apply_translation(lang) {
+  if (!UI_LOCALIZATION[lang]) {
+    return ;
+  }
+  for (key in UI_LOCALIZATION[lang]) {
+    var element = document.getElementById(key);
+    if (!element) {
+      continue ;
+    }
+    var message = UI_LOCALIZATION[lang][key];
+    var tag_name = new String(element.tagName);
+    if (tag_name.toLowerCase() == "select") {
+      for (var i = 0; i < element.options.length; i++) {
+        var option = element.options[i];
+        var value = option.value;
+        if (!message[value]) {
+          continue ;
+        }
+        option.text = message[value];
+      }
+    }
+    else {
+      element.innerHTML = message;
+    }
+  }
+}
+
+function getSelectValue(element) {
+  try {
+    return element.options[element.selectedIndex].value;
+  }
+  catch (e) {
+    return "";
+  }
+}
+
+function setSelectItem(element, value) {
+  for (var i = 0; i < element.options.length; i++) {
+    if (element.options[i].value == value) {
+      element.selectedIndex = i;
+      break ;
+    }
+  }
+}
+
+function load_game() {
+  if (Game) {
+    Game.destroy();
+    Game = null;
+  }
+  var disk_count = getSelectValue(disks_select),
+      initial_peg_index = getSelectValue(initial_peg_select);
+      language = getSelectValue(language_select);
+  disk_count = parseInt(disk_count);
+  initial_peg_index = parseInt(initial_peg_index);
+  Game = new hanoi.Game("game", language, 3, initial_peg_index, disk_count);
+  apply_translation(language);
+}
+
+function solve() {
+  load_game();
+  if (!Game) {
+    return ;
+  }
+  Game.solve();
+}
+
+load_game();
+disks_select.onchange =
+initial_peg_select.onchange =
+language_select.onchange =
+new_game_button.onclick = load_game;
+solve_button.onclick = solve;
+window.onload = function () {
+  var lang_code;
+  try {
+    if (navigator.language) {
+      lang_code = navigator.language;
+    }
+    else if (navigator.systemLanguage) {
+      lang_code = navigator.userLanguage;
+    }
+    else if (navigator.userLanguage) {
+      lang_code = navigator.userLanguage;
+    }
+    if (lang_code) {
+      lang_code = lang_code.substr(0, 2);
+      setSelectItem(language_select, lang_code);
+    }
+  }
+  catch (e) {
+  }
+  load_game();
+};
+
+//]]>
+</script>
+</body>
+</html>

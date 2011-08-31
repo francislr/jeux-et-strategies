@@ -1,0 +1,77 @@
+
+.NIM {
+  margin: 10px 0;
+  position: relative;
+}
+
+.NIM .BoardRow {
+  text-align: center;
+  margin: 5px 0;
+}
+
+.NIM .Object {
+  position: relative;
+  border: 0;
+  cursor: pointer;
+}
+
+.NIM .BoardRow .Arrow {
+  background: url(arrow.png) no-repeat;
+  vertical-align: top;
+  display: inline-block;
+  width: 32px;
+  height: 32px;
+  margin-top: 22px;
+  margin-right: 4px;
+}
+
+.NIM .EndMessage {
+  text-align: center;
+  position: absolute;
+  margin-left: 12px;
+  top: 50%;
+  left: 300px;
+  font-size: 32px;
+  font-weight: bold;
+  text-transform: uppercase;
+}
+
+.NIM .EndMessage.LoseMessage {
+  color: #c30000;
+}
+
+.NIM .EndMessage.WinMessage {
+  color: #0b9d00;
+}
+
+.NIM.ThemeMatch .Object {
+  background: url(match.png) no-repeat;
+  width: 22px;
+  height: 94px;
+}
+
+.NIM.ThemeMatch .BoardRow {
+  height: 94px;
+}
+
+.NIM.ThemeBall .Object {
+  background: url(ball.png) no-repeat;
+  width: 45px;
+  height: 45px;
+  margin-right: 4px;
+}
+
+.NIM.ThemeBall .BoardRow {
+  height: 43px;
+}
+
+.NIM.ThemeCoin .Object {
+  background: url(coin.png) no-repeat;
+  width: 46px;
+  height: 46px;
+  margin-right: 4px;
+}
+
+.NIM.ThemeCoin .BoardRow {
+  height: 43px;
+}

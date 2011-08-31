@@ -1,0 +1,235 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.1//EN"
+  "http://www.w3.org/TR/xhtml11/DTD/xhtml11.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/>
+<title>Jeu des allumettes</title>
+<link href="../style.css" rel="stylesheet" type="text/css"/>
+<link href="allumettes.css" rel="stylesheet" type="text/css"/>
+</head>
+<body>
+<div id="header">
+<h1>Jeu des allumettes</h1>
+</div>
+<div id="breadcrumb">
+<a href="../index.html" title="Jeux et stratégies">Jeux et stratégies</a> &rsaquo; <strong>Allumettes</strong>
+</div>
+<div id="content">
+<fieldset>
+<legend id="allumettes-settings">Settings</legend>
+<ul>
+<li>
+<label for="allumettes-objects" id="allumettes-objects-label">Number of objects:</label>
+<input type="text" id="allumettes-objects" value="11" class="text" />
+</li>
+<li>
+<label for="allumettes-pick-up-quantity" id="allumettes-pick-up-quantity-label">Pick up quantity:</label>
+<select id="allumettes-pick-up-quantity" class="select">
+<option value="1">1</option>
+<option value="2">2</option>
+<option value="3" selected="selected">3</option>
+<option value="4">4</option>
+<option value="5">5</option>
+<option value="6">6</option>
+</select>
+</li>
+<li>
+<label for="allumettes-goal" id="allumettes-goal-label">Goal:</label>
+<select id="allumettes-goal" class="select">
+<option value="1">Last win</option>
+<option value="2" selected="selected">Last lose</option>
+</select>
+</li>
+<li>
+<label for="allumettes-first-player" id="allumettes-first-player-label">First to start:</label>
+<select id="allumettes-first-player" class="select">
+<option value="human">Human start</option>
+<option value="computer">Computer start</option>
+</select>
+</li>
+<li>
+<label for="allumettes-theme" id="allumettes-theme-label">Theme:</label>
+<select id="allumettes-theme" class="select">
+<option value="ThemeMatch" selected="selected">Match</option>
+<option value="ThemeBall">Tenis Ball</option>
+<option value="ThemeCoin">Coin</option>
+</select>
+</li>
+<li>
+<label for="allumettes-language" id="allumettes-language-label">Language:</label>
+<select id="allumettes-language" class="select">
+<option value="en">English</option>
+<option value="fr" selected="selected">Français</option>
+</select>
+</li>
+<div>
+<button id="allumettes-new-game" class="button">New game</button>
+</div>
+</fieldset>
+<div id="game"></div>
+</div>
+<div id="footer">
+<p>2011 <a href="mailto:francislr@gmail.com" title="Envoyer un courriel">Francis Lavoie-Renaud</a></p>
+</div>
+<script src="allumettes.js" type="text/javascript" charset="UTF-8">
+</script>
+<script>
+//<![CDATA[
+Game = null;
+UI_LOCALIZATION = {
+  "en": {
+    "allumettes-settings": "Settings",
+    "allumettes-objects-label": "Number of objects:",
+    "allumettes-pick-up-quantity-label": "Pick up quantity:",
+    "allumettes-first-player-label": "First to play:",
+    "allumettes-first-player": {
+      "human": "Human start",
+      "computer": "Computer start"
+    },
+    "allumettes-goal-label": "Goal:",
+    "allumettes-goal": {
+      "1": "Last win",
+      "2": "Last lose"
+    },
+    "allumettes-theme-label": "Theme:",
+    "allumettes-theme": {
+      "ThemeMatch": "Match",
+      "ThemeBall": "Tennis ball",
+      "ThemeCoin": "Coin"
+    },
+    "allumettes-language-label": "Language:",
+    "allumettes-new-game": "New game"
+  },
+  "fr": {
+    "allumettes-settings": "Paramètres",
+    "allumettes-objects-label": "Nombre d'objets :",
+    "allumettes-pick-up-quantity-label": "Quantité à ramasser :",
+    "allumettes-first-player-label": "Premier à jouer:",
+    "allumettes-first-player": {
+      "human": "Humain",
+      "computer": "Ordinateur"
+    },
+    "allumettes-goal-label": "Objectif :",
+    "allumettes-goal": {
+      "1": "Dernière gagne",
+      "2": "Dernière perd"
+    },
+    "allumettes-theme-label": "Thème :",
+    "allumettes-theme": {
+      "ThemeMatch": "Allumette",
+      "ThemeBall": "Balle de tennis",
+      "ThemeCoin": "Pièce de monnaie"
+    },
+    "allumettes-language-label": "Langue :",
+    "allumettes-new-game": "Nouvelle partie"
+  }
+};
+objects_input = document.getElementById("allumettes-objects");
+pick_up_quantity_select = document.getElementById("allumettes-pick-up-quantity");
+goal_select = document.getElementById("allumettes-goal");
+first_player_select = document.getElementById("allumettes-first-player");
+language_select = document.getElementById("allumettes-language");
+theme_select = document.getElementById("allumettes-theme");
+new_game_button = document.getElementById("allumettes-new-game");
+
+function apply_translation(lang) {
+  if (!UI_LOCALIZATION[lang]) {
+    return ;
+  }
+  for (key in UI_LOCALIZATION[lang]) {
+    var element = document.getElementById(key);
+    if (!element) {
+      continue ;
+    }
+    var message = UI_LOCALIZATION[lang][key];
+    var tag_name = new String(element.tagName);
+    if (tag_name.toLowerCase() == "select") {
+      for (var i = 0; i < element.options.length; i++) {
+        var option = element.options[i];
+        var value = option.value;
+        if (!message[value]) {
+          continue ;
+        }
+        option.text = message[value];
+      }
+    }
+    else {
+      element.innerHTML = message;
+    }
+  }
+}
+
+function getSelectValue(element) {
+  try {
+    return element.options[element.selectedIndex].value;
+  }
+  catch (e) {
+    return "";
+  }
+}
+
+function setSelectItem(element, value) {
+  for (var i = 0; i < element.options.length; i++) {
+    if (element.options[i].value == value) {
+      element.selectedIndex = i;
+      break ;
+    }
+  }
+}
+
+function load_game() {
+  if (Game) {
+    Game.destroy();
+    Game = null;
+  }
+  var object_count = objects_input.value,
+      pick_up_quantity = getSelectValue(pick_up_quantity_select),
+      goal = getSelectValue(goal_select),
+      first_player = getSelectValue(first_player_select),
+      theme = getSelectValue(theme_select),
+      language = getSelectValue(language_select);
+  object_count = parseInt(object_count);
+  pick_up_quantity = parseInt(pick_up_quantity);
+  if (pick_up_quantity <= 0) {
+    return ;
+  }
+  if (!object_count) {
+    return ;
+  }
+  Game = new allumettes.Game(language, theme, object_count,
+    pick_up_quantity, first_player, goal, "game");
+  apply_translation(language);
+}
+load_game();
+objects_input.onchange =
+pick_up_quantity_select.onchange =
+first_player_select.onchange =
+goal_select.onchange =
+theme_select.onchange =
+language_select.onchange =
+new_game_button.onclick = load_game;
+window.onload = function () {
+  var lang_code;
+  try {
+    if (navigator.language) {
+      lang_code = navigator.language;
+    }
+    else if (navigator.systemLanguage) {
+      lang_code = navigator.userLanguage;
+    }
+    else if (navigator.userLanguage) {
+      lang_code = navigator.userLanguage;
+    }
+    if (lang_code) {
+      lang_code = lang_code.substr(0, 2);
+      setSelectItem(language_select, lang_code);
+    }
+  }
+  catch (e) {
+  }
+  load_game();
+};
+//]]>
+</script>
+</body>
+</html>
